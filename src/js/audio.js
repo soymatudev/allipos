@@ -1,4 +1,4 @@
-// Sound Effects Handler using Web Audio API
+// Sound Effects Handler using Web Audio API & Web Speech API
 
 let audioCtx = null;
 
@@ -89,5 +89,45 @@ export const Sound = {
     } catch (e) {
       // Fallback
     }
+  },
+
+  // Native Speech Synthesis (Voz en español es-MX)
+  speak(text) {
+    if (!('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-MX';
+      utterance.rate = 0.92; // Slightly slower rate for clear children comprehension
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Error al reproducir síntesis de voz:', e);
+    }
+  },
+
+  speakChange(changeAmount, breakdown = []) {
+    if (changeAmount <= 0) {
+      this.speak('¡Pago exacto! No hay cambio que entregar.');
+      return;
+    }
+
+    let speechText = `El cambio es de ${changeAmount} pesos. Entrega al cliente: `;
+    const parts = breakdown.map(item => {
+      const denomText = item.type === 'billete' ? 'billete' : 'moneda';
+      const pluralDenom = item.count > 1 ? (denomText === 'billete' ? 'billetes' : 'monedas') : denomText;
+      return `${item.count} ${pluralDenom} de ${item.value} pesos`;
+    });
+
+    if (parts.length === 1) {
+      speechText += parts[0] + '.';
+    } else if (parts.length === 2) {
+      speechText += `${parts[0]} y ${parts[1]}.`;
+    } else {
+      const last = parts.pop();
+      speechText += `${parts.join(', ')} y ${last}.`;
+    }
+
+    this.speak(speechText);
   }
 };

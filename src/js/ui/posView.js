@@ -1,11 +1,39 @@
 import { Store } from '../store.js';
 import { Sound } from '../audio.js';
+import img5 from '../../assets/diner5.jpg';
+import img10 from '../../assets/diner10.jpg';
+import img20 from '../../assets/diner20.jpg';
+import img50 from '../../assets/diner50.jpg';
+import img100 from '../../assets/diner100.jpg';
 
 export function renderPosView(container) {
   let currentStep = 1; // 1: Select Product, 2: Select Quantity, 3: Select Payment, 4: Success/Change
   let selectedProduct = null;
   let quantity = 1;
   let selectedBill = null;
+
+  // Calculador de Desglose Óptimo del Cambio con Billetes y Monedas
+  function calculateChangeBreakdown(changeAmount) {
+    if (changeAmount <= 0) return [];
+    let remaining = Math.round(changeAmount * 100) / 100;
+    const result = [];
+    const denominations = [
+      { value: 100, type: 'billete', label: 'Billete $100', img: img100 },
+      { value: 50, type: 'billete', label: 'Billete $50', img: img50 },
+      { value: 20, type: 'billete', label: 'Billete $20', img: img20 },
+      { value: 10, type: 'moneda', label: 'Moneda $10', img: img10 },
+      { value: 5, type: 'moneda', label: 'Moneda $5', img: img5 }
+    ];
+
+    for (const item of denominations) {
+      if (remaining >= item.value) {
+        const count = Math.floor(remaining / item.value);
+        remaining = Math.round((remaining - count * item.value) * 100) / 100;
+        result.push({ ...item, count });
+      }
+    }
+    return result;
+  }
 
   function render() {
     const products = Store.getProducts();
@@ -90,7 +118,7 @@ export function renderPosView(container) {
       `;
     }
 
-    // PASO 3: Seleccionar Dinero Recibido (Billetes $10, $20, $50, $100 / Teclado Numérico Directo)
+    // PASO 3: Seleccionar Dinero Recibido ($5, $10, $20, $50, $100 / Teclado Numérico Directo)
     else if (currentStep === 3) {
       const totalPayable = selectedProduct.price * quantity;
       const isBillEntered = selectedBill !== null && selectedBill !== undefined && selectedBill > 0;
@@ -128,18 +156,31 @@ export function renderPosView(container) {
           👇 Toca los billetes para sumar:
         </div>
 
-        <div class="bills-grid">
-          <button class="bill-btn bill-10" data-add="10" style="background-color: #ff9600; color: white; box-shadow: 0 4px 0 #ce7900;">
-            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span> 🪙 $10
+        <div class="bills-grid" style="margin-bottom: 8px; gap: 6px;">
+          <button class="bill-btn bill-5" data-add="5" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img5}" class="bill-img" alt="$5" />
+            <span>$5</span>
           </button>
-          <button class="bill-btn bill-20" data-add="20">
-            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span> 💵 $20
+          <button class="bill-btn bill-10" data-add="10" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img10}" class="bill-img" alt="$10" />
+            <span>$10</span>
           </button>
-          <button class="bill-btn bill-50" data-add="50">
-            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span> 💵 $50
+          <button class="bill-btn bill-20" data-add="20" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img20}" class="bill-img" alt="$20" />
+            <span>$20</span>
           </button>
-          <button class="bill-btn bill-100" data-add="100">
-            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span> 💵 $100
+          <button class="bill-btn bill-50" data-add="50" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img50}" class="bill-img" alt="$50" />
+            <span>$50</span>
+          </button>
+          <button class="bill-btn bill-100" data-add="100" style="grid-column: span 2; padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img100}" class="bill-img" alt="$100" />
+            <span>$100</span>
           </button>
           <button class="bill-btn bill-exact" id="btn-set-exact" style="grid-column: span 2; padding: 10px;">
             ✨ ¡PAGO EXACTO! ($${totalPayable.toFixed(2)})
@@ -165,24 +206,48 @@ export function renderPosView(container) {
             ✅ Dinero suficiente • Cambio a entregar: $${(selectedBill - totalPayable).toFixed(2)}
           </div>
         ` : ''}
-
       `;
     }
 
-    // PASO 4: Resultado y Entrega de Cambio
+    // PASO 4: Resultado, Desglose Visual y Voz
     else if (currentStep === 4) {
       const totalPayable = selectedProduct.price * quantity;
       const change = selectedBill - totalPayable;
+      const breakdown = calculateChangeBreakdown(change);
 
       contentHtml += `
-        <div class="step-title" style="justify-content: center; color: var(--color-green-shadow);">
-          <span>🎉</span> ¡VENTA COMPLETA!
+        <div class="step-title" style="justify-content: space-between; color: var(--color-green-shadow); margin-bottom: 12px; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span>🎉</span> ¡VENTA COMPLETA!
+          </div>
+          <button class="btn-3d btn-blue" id="btn-speak-change" style="padding: 6px 12px; font-size: 0.85rem; width: auto;" title="Escuchar cambio por voz">
+            🔊 Escuchar
+          </button>
         </div>
 
-        <div class="result-card">
+        <div class="result-card" style="padding: 14px; margin-bottom: 14px;">
           <div class="result-title">CAMBIO A ENTREGAR AL CLIENTE</div>
-          <div class="change-amount">$${change.toFixed(2)}</div>
-          
+          <div class="change-amount" style="font-size: 3rem; margin-bottom: 6px;">$${change.toFixed(2)}</div>
+
+          ${change <= 0 ? `
+            <div style="font-size: 1.05rem; font-weight: 800; color: var(--color-green-shadow); margin: 10px 0;">
+              ✨ ¡Pago exacto! No hay cambio que entregar.
+            </div>
+          ` : `
+            <div style="font-weight: 800; font-size: 0.9rem; color: var(--color-text-muted); margin: 8px 0 6px;">
+              👉 Entrega al cliente las siguientes monedas/billetes:
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
+              ${breakdown.map(item => `
+                <div style="background: #f0f4f8; border: 2px solid var(--color-gray-light); border-radius: 12px; padding: 6px 10px; text-align: center; min-width: 75px;">
+                  <img src="${item.img}" style="height: 36px; object-fit: contain; border-radius: 4px; display: block; margin: 0 auto 4px;" alt="${item.label}" />
+                  <div style="font-weight: 900; font-size: 1.15rem; color: var(--color-green-shadow);">${item.count}x</div>
+                  <div style="font-size: 0.75rem; font-weight: 800; color: var(--color-text);">${item.label}</div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+
           <div class="summary-row">
             <span>Producto:</span>
             <span><strong>${quantity}x ${selectedProduct.name}</strong></span>
@@ -323,13 +388,28 @@ export function renderPosView(container) {
       }
     }
 
-    // Step 4 Finish Sale
+    // Step 4 Finish Sale & Voice Speech
     if (currentStep === 4) {
       const btnFinish = container.querySelector('#btn-finish-sale');
+      const btnSpeak = container.querySelector('#btn-speak-change');
+      const totalPayable = selectedProduct.price * quantity;
+      const change = selectedBill - totalPayable;
+      const breakdown = calculateChangeBreakdown(change);
+
+      // Reproducir voz automáticamente al llegar a la pantalla final
+      setTimeout(() => {
+        Sound.speakChange(change, breakdown);
+      }, 300);
+
+      btnSpeak?.addEventListener('click', () => {
+        Sound.speakChange(change, breakdown);
+      });
+
       btnFinish?.addEventListener('click', () => {
         Sound.playClick();
-        const totalPayable = selectedProduct.price * quantity;
-        const change = selectedBill - totalPayable;
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
         Store.addSale({
           productId: selectedProduct.id,
           productName: selectedProduct.name,

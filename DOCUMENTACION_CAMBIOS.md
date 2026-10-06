@@ -35,14 +35,23 @@ Este documento registra todas las funcionalidades creadas, refactorizaciones y a
 1. **Paso 1: Selección de Producto** - Tarjetas grandes con foto, nombre y precio.
 2. **Paso 2: Cantidad** - Controles gigantes `+` y `-` con cálculo dinámico del total.
 3. **Paso 3: Cobro de Dinero** - Selección/Suma de dinero recibido y cálculo de cambio.
-4. **Paso 4: Venta Exitosa** - Pantalla de felicitación con cambio a entregar en verde gigante y efecto de sonido festivo.
+4. **Paso 4: Venta Exitosa y Asistencia por Voz** - Pantalla de felicitación con cambio a entregar en verde gigante, desglose visual de billetes/monedas y dictado automático por voz del cambio.
 
-### 🧠 Ajustes Cognitivos y Accesibilidad en el Cobro (Paso 3):
+### 🧠 Ajustes Cognitivos y Accesibilidad en el Cobro (Paso 3 y Paso 4):
+* **Desglose Visual del Cambio (Paso 4):**
+  * Cálculo óptimo del cambio en monedas y billetes reales ($100, $50, $20, $10, $5).
+  * Renderizado de mini-tarjetas con la imagen real de cada moneda/billete a entregar y la cantidad exacta (`1x Billete de $20`, `1x Moneda de $10`, etc.).
+* **Asistente de Voz Nativo (Web Speech API):**
+  * Integración en `src/js/audio.js` utilizando la API nativa de voz (`window.speechSynthesis`) en español latinoamericano (`es-MX`).
+  * Lectura automática al ingresar al Paso 4 dictando la frase natural: *"El cambio es de 35 pesos. Entrega al cliente: 1 billete de 20 pesos, 1 moneda de 10 pesos y 1 moneda de 5 pesos."*
+  * Botón **`🔊 Escuchar`** para repetir el dictado cuantas veces sea necesario.
+* **Imágenes Reales de Billetes y Monedas (Reconocimiento Visual en Paso 3):**
+  * Inclusión de las imágenes reales de las denominaciones ($5, $10, $20, $50, $100) directamente dentro de los botones.
+  * Diseñado especialmente para niños que no leen números con facilidad pero reconocen visualmente el billete o la moneda por su color e ilustración.
 * **Teclado Numérico Nativo Directo:**
   * Implementación del campo `<input type="number" inputmode="decimal">` que despliega inmediatamente el teclado numérico en celulares.
-* **Billetes Acumulables por Toque:**
-  * Botones de denominación ($10, $20, $50, $100) que se van sumando con cada toque.
-  * Eliminación de billetes altos ($200 y $500) para evitar confusión en cobros pequeños.
+* **Billetes Acumulables por Toque ($5, $10, $20, $50, $100):**
+  * Denominaciones visuales que se van sumando acumulativamente con cada toque.
   * Botón de **`✨ ¡PAGO EXACTO!`** y botón de **`🧹 Borrar`**.
 * **Posicionamiento de Botones de Acción (Trabajo Conjunto + Ajustes del Usuario):**
   * Los botones principales **`⬅️ Volver`** y **`Calcular Cambio ➡️`** fueron posicionados **arriba de los avisos/alertas de dinero**, garantizando que **siempre queden 100% visibles sin necesidad de hacer scroll** en ninguna pantalla.
