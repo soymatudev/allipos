@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>POS Kermés Infantil - Punto de Venta Fácil</title>
+  <meta name="description" content="Punto de Venta super sencillo e intuitivo estilo Duolingo para kermés escolar infantil." />
+  <meta name="theme-color" content="#58cc02" />
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏪</text></svg>" />
+  
+  <!-- Duolingo style CSS -->
+  <link rel="stylesheet" href="/src/css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo-container" title="Punto de Venta Kermés">
+        <span class="logo-icon">🏪</span>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-btn active" data-view="pos" id="tab-pos">
+          🛒 Cobrar
+        </button>
+        <button class="nav-btn" data-view="admin" id="tab-admin">
+          📦 Productos
+        </button>
+        <button class="nav-btn" data-view="summary" id="tab-summary">
+          📊 Corte
+        </button>
+      </nav>
+    </header>
+
+    <main id="view-container">
+      <!-- Dynamic Views rendered here by Vite & JS -->
+    </main>
+  </div>
+
+  <script type="module" src="/src/js/app.js"></script>
+</body>
+</html>
