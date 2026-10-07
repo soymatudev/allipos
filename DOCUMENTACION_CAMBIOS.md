@@ -38,19 +38,25 @@ Este documento registra todas las funcionalidades creadas, refactorizaciones y a
 4. **Paso 4: Venta Exitosa y Asistencia por Voz** - Pantalla de felicitación con cambio a entregar en verde gigante, desglose visual de billetes/monedas y dictado automático por voz del cambio.
 
 ### 🧠 Ajustes Cognitivos y Accesibilidad en el Cobro (Paso 3 y Paso 4):
-* **Desglose Visual del Cambio (Paso 4):**
-  * Cálculo óptimo del cambio en monedas y billetes reales ($100, $50, $20, $10, $5).
-  * Renderizado de mini-tarjetas con la imagen real de cada moneda/billete a entregar y la cantidad exacta (`1x Billete de $20`, `1x Moneda de $10`, etc.).
-* **Asistente de Voz Nativo (Web Speech API):**
-  * Integración en `src/js/audio.js` utilizando la API nativa de voz (`window.speechSynthesis`) en español latinoamericano (`es-MX`).
-  * Lectura automática al ingresar al Paso 4 dictando la frase natural: *"El cambio es de 35 pesos. Entrega al cliente: 1 billete de 20 pesos, 1 moneda de 10 pesos y 1 moneda de 5 pesos."*
-  * Botón **`🔊 Escuchar`** para repetir el dictado cuantas veces sea necesario.
-* **Imágenes Reales de Billetes y Monedas (Reconocimiento Visual en Paso 3):**
-  * Inclusión de las imágenes reales de las denominaciones ($5, $10, $20, $50, $100) directamente dentro de los botones.
-  * Diseñado especialmente para niños que no leen números con facilidad pero reconocen visualmente el billete o la moneda por su color e ilustración.
+* **Nuevas Monedas de $1 y $2 Pesos (Paso 3 y Paso 4):**
+  * Inclusión de botones con imágenes reales para las monedas de **$1 peso** (`diner1.png`) y **$2 pesos** (`diner2.png`), completando el rango monetario mexicano ($1, $2, $5, $10, $20, $50, $100).
+  * Estilos 3D táctiles diferenciados con paleta de alto contraste (`.bill-1` y `.bill-2`).
+* **Voz Inmediata por Denominación al Sumar Dinero (Paso 3):**
+  * Al tocar cualquier botón de billete o moneda, la síntesis de voz pronuncia inmediatamente la cantidad ingresada (ej. *"1 peso"*, *"2 pesos"*, *"5 pesos"*, *"20 pesos"*), facilitando el aprendizaje y la confirmación auditiva instantánea para los alumnos.
+  * También pronuncia confirmación auditiva al presionar *¡Pago Exacto!* o *Borrar*.
+* **Múltiples Formas de Entregar el Cambio (Paso 4):**
+  * Motor inteligente de combinaciones de cambio que calcula de forma dinámica y realista alternativas válidas para una misma cantidad.
+  * Botón interactivo **`🔄 Ver otra forma de dar cambio`** con contador de opciones (ej. `1/3`, `2/3`).
+  * Si el alumno o la caja no cuenta con una moneda específica (por ejemplo, para $15 no tiene una moneda de $10 y $5), puede pulsar el botón para ver y escuchar combinaciones alternativas (ej. *3 monedas de $5* o *1 de $10, 2 de $2 y 1 de $1*).
+  * Cada cambio de opción actualiza inmediatamente las tarjetas visuales con las fotos y reproduce la explicación por voz.
+* **Desglose Visual del Cambio y Asistente de Voz Nativo (Paso 4):**
+  * Cálculo óptimo inicial del cambio en monedas y billetes reales ($100, $50, $20, $10, $5, $2, $1).
+  * Renderizado de mini-tarjetas con la imagen real de cada moneda/billete a entregar y la cantidad exacta (`1x Billete de $20`, `2x Moneda de $2`, `1x Moneda de $1`, etc.).
+  * Lectura automática al ingresar al Paso 4 dictando la frase natural adaptada gramaticalmente a singular/plural (*"1 peso"* / *"pesos"*).
+  * Botón **`🔊 Escuchar`** para repetir el dictado de la combinación activa.
 * **Teclado Numérico Nativo Directo:**
   * Implementación del campo `<input type="number" inputmode="decimal">` que despliega inmediatamente el teclado numérico en celulares.
-* **Billetes Acumulables por Toque ($5, $10, $20, $50, $100):**
+* **Billetes y Monedas Acumulables por Toque ($1, $2, $5, $10, $20, $50, $100):**
   * Denominaciones visuales que se van sumando acumulativamente con cada toque.
   * Botón de **`✨ ¡PAGO EXACTO!`** y botón de **`🧹 Borrar`**.
 * **Posicionamiento de Botones de Acción (Trabajo Conjunto + Ajustes del Usuario):**

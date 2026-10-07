@@ -455,6 +455,26 @@ main {
   box-shadow: 0 1px 0 #a560e8;
 }
 
+.bill-1 {
+  background-color: #607d8b;
+  color: white;
+  box-shadow: 0 4px 0 #455a64;
+}
+.bill-1:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #455a64;
+}
+
+.bill-2 {
+  background-color: #00897b;
+  color: white;
+  box-shadow: 0 4px 0 #00695c;
+}
+.bill-2:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #00695c;
+}
+
 .bill-5 {
   background-color: #ff9600;
   color: white;

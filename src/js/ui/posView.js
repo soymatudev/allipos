@@ -1,39 +1,84 @@
 import { Store } from '../store.js';
 import { Sound } from '../audio.js';
+import img1 from '../../assets/diner/diner1.png';
+import img2 from '../../assets/diner/diner2.png';
 import img5 from '../../assets/diner/diner5.jpg';
 import img10 from '../../assets/diner/diner10.jpg';
 import img20 from '../../assets/diner/diner20.jpg';
 import img50 from '../../assets/diner/diner50.jpg';
 import img100 from '../../assets/diner/diner100.jpg';
 
+const DENOMINATIONS = [
+  { value: 100, type: 'billete', label: 'Billete $100', img: img100 },
+  { value: 50, type: 'billete', label: 'Billete $50', img: img50 },
+  { value: 20, type: 'billete', label: 'Billete $20', img: img20 },
+  { value: 10, type: 'moneda', label: 'Moneda $10', img: img10 },
+  { value: 5, type: 'moneda', label: 'Moneda $5', img: img5 },
+  { value: 2, type: 'moneda', label: 'Moneda $2', img: img2 },
+  { value: 1, type: 'moneda', label: 'Moneda $1', img: img1 }
+];
+
+// Generador de múltiples combinaciones realistas de cambio
+function calculateAllChangeCombinations(changeAmount, maxOptions = 6) {
+  if (changeAmount <= 0) return [];
+
+  const wholeAmount = Math.floor(Math.round(changeAmount * 100) / 100);
+  if (wholeAmount <= 0) return [];
+
+  const denoms = DENOMINATIONS.map(d => d.value);
+  const rawResults = [];
+
+  function search(idx, currentSum, counts) {
+    if (rawResults.length >= 80) return;
+    if (currentSum === wholeAmount) {
+      rawResults.push([...counts]);
+      return;
+    }
+    if (idx >= denoms.length) return;
+
+    const val = denoms[idx];
+    const max = Math.floor((wholeAmount - currentSum) / val);
+    for (let c = max; c >= 0; c--) {
+      // Límites prácticos para evitar combinaciones absurdas (ej. 50 monedas de $1)
+      if ((val === 1 || val === 2) && c > 10 && wholeAmount > 20) continue;
+      if (val === 1 && c > 5 && wholeAmount > 10) continue;
+      counts[idx] = c;
+      search(idx + 1, currentSum + c * val, counts);
+      counts[idx] = 0;
+      if (rawResults.length >= 80) break;
+    }
+  }
+
+  search(0, 0, new Array(denoms.length).fill(0));
+
+  if (rawResults.length === 0) return [];
+
+  const allCombos = rawResults.map(counts => {
+    const breakdown = [];
+    let totalPieces = 0;
+    for (let i = 0; i < denoms.length; i++) {
+      if (counts[i] > 0) {
+        breakdown.push({ ...DENOMINATIONS[i], count: counts[i] });
+        totalPieces += counts[i];
+      }
+    }
+    return { breakdown, totalPieces };
+  });
+
+  // La opción óptima / estándar va primero, el resto ordenadas por menor cantidad de piezas
+  const greedy = allCombos[0];
+  const others = allCombos.slice(1).sort((a, b) => a.totalPieces - b.totalPieces);
+  const finalCombos = [greedy, ...others];
+
+  return finalCombos.slice(0, maxOptions).map(c => c.breakdown);
+}
+
 export function renderPosView(container) {
   let currentStep = 1; // 1: Select Product, 2: Select Quantity, 3: Select Payment, 4: Success/Change
   let selectedProduct = null;
   let quantity = 1;
   let selectedBill = null;
-
-  // Calculador de Desglose Óptimo del Cambio con Billetes y Monedas
-  function calculateChangeBreakdown(changeAmount) {
-    if (changeAmount <= 0) return [];
-    let remaining = Math.round(changeAmount * 100) / 100;
-    const result = [];
-    const denominations = [
-      { value: 100, type: 'billete', label: 'Billete $100', img: img100 },
-      { value: 50, type: 'billete', label: 'Billete $50', img: img50 },
-      { value: 20, type: 'billete', label: 'Billete $20', img: img20 },
-      { value: 10, type: 'moneda', label: 'Moneda $10', img: img10 },
-      { value: 5, type: 'moneda', label: 'Moneda $5', img: img5 }
-    ];
-
-    for (const item of denominations) {
-      if (remaining >= item.value) {
-        const count = Math.floor(remaining / item.value);
-        remaining = Math.round((remaining - count * item.value) * 100) / 100;
-        result.push({ ...item, count });
-      }
-    }
-    return result;
-  }
+  let currentComboIndex = 0;
 
   function render() {
     const products = Store.getProducts();
@@ -118,7 +163,7 @@ export function renderPosView(container) {
       `;
     }
 
-    // PASO 3: Seleccionar Dinero Recibido ($5, $10, $20, $50, $100 / Teclado Numérico Directo)
+    // PASO 3: Seleccionar Dinero Recibido ($1, $2, $5, $10, $20, $50, $100 / Teclado Numérico Directo)
     else if (currentStep === 3) {
       const totalPayable = selectedProduct.price * quantity;
       const isBillEntered = selectedBill !== null && selectedBill !== undefined && selectedBill > 0;
@@ -153,10 +198,20 @@ export function renderPosView(container) {
         </div>
 
         <div style="font-size: 0.85rem; font-weight: 800; color: var(--color-text-muted); margin-bottom: 6px; text-align: center;">
-          👇 Toca los billetes para sumar:
+          👇 Toca las monedas o billetes para sumar:
         </div>
 
         <div class="bills-grid" style="margin-bottom: 8px; gap: 6px;">
+          <button class="bill-btn bill-1" data-add="1" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img1}" class="bill-img" alt="$1" />
+            <span>$1</span>
+          </button>
+          <button class="bill-btn bill-2" data-add="2" style="padding: 6px 8px;">
+            <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
+            <img src="${img2}" class="bill-img" alt="$2" />
+            <span>$2</span>
+          </button>
           <button class="bill-btn bill-5" data-add="5" style="padding: 6px 8px;">
             <span style="font-size: 0.9em; opacity: 0.85; font-weight: 800;">+</span>
             <img src="${img5}" class="bill-img" alt="$5" />
@@ -209,11 +264,12 @@ export function renderPosView(container) {
       `;
     }
 
-    // PASO 4: Resultado, Desglose Visual y Voz
+    // PASO 4: Resultado, Desglose Visual, Múltiples Formas de Cambio y Voz
     else if (currentStep === 4) {
       const totalPayable = selectedProduct.price * quantity;
-      const change = selectedBill - totalPayable;
-      const breakdown = calculateChangeBreakdown(change);
+      const change = Math.round((selectedBill - totalPayable) * 100) / 100;
+      const combinations = calculateAllChangeCombinations(change);
+      const breakdown = combinations[currentComboIndex] || combinations[0] || [];
 
       contentHtml += `
         <div class="step-title" style="justify-content: space-between; color: var(--color-green-shadow); margin-bottom: 12px; align-items: center;">
@@ -234,18 +290,31 @@ export function renderPosView(container) {
               ✨ ¡Pago exacto! No hay cambio que entregar.
             </div>
           ` : `
-            <div style="font-weight: 800; font-size: 0.9rem; color: var(--color-text-muted); margin: 8px 0 6px;">
-              👉 Entrega al cliente las siguientes monedas/billetes:
+            <div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0 6px;">
+              <span style="font-weight: 800; font-size: 0.9rem; color: var(--color-text-muted);">
+                👉 Entrega al cliente ${combinations.length > 1 ? `(Opción ${currentComboIndex + 1} de ${combinations.length})` : ''}:
+              </span>
             </div>
+
             <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
               ${breakdown.map(item => `
                 <div style="background: #f0f4f8; border: 2px solid var(--color-gray-light); border-radius: 12px; padding: 6px 10px; text-align: center; min-width: 75px;">
-                  <img src="${item.img}" style="height: 36px; object-fit: contain; border-radius: 4px; display: block; margin: 0 auto 4px;" alt="${item.label}" />
+                  <img src="${item.img}" style="height: 38px; object-fit: contain; border-radius: 4px; display: block; margin: 0 auto 4px;" alt="${item.label}" />
                   <div style="font-weight: 900; font-size: 1.15rem; color: var(--color-green-shadow);">${item.count}x</div>
                   <div style="font-size: 0.75rem; font-weight: 800; color: var(--color-text);">${item.label}</div>
                 </div>
               `).join('')}
             </div>
+
+            ${combinations.length > 1 ? `
+              <button class="btn-3d btn-blue" id="btn-cycle-change" style="width: 100%; padding: 10px 12px; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>🔄</span>
+                <span>Ver otra forma de dar cambio</span>
+                <span style="background: rgba(255,255,255,0.25); border-radius: 10px; padding: 2px 7px; font-size: 0.8rem; font-weight: 900;">
+                  ${currentComboIndex + 1}/${combinations.length}
+                </span>
+              </button>
+            ` : ''}
           `}
 
           <div class="summary-row">
@@ -283,6 +352,7 @@ export function renderPosView(container) {
           selectedProduct = products.find(p => p.id === pId);
           quantity = 1;
           selectedBill = null;
+          currentComboIndex = 0;
           currentStep = 2;
           render();
         });
@@ -344,6 +414,7 @@ export function renderPosView(container) {
       btnClearPaid?.addEventListener('click', () => {
         Sound.playClick();
         selectedBill = 0;
+        Sound.speak('Borrado');
         if (inputPaid) inputPaid.value = '';
         updateStep3Status();
       });
@@ -352,16 +423,18 @@ export function renderPosView(container) {
       btnExact?.addEventListener('click', () => {
         Sound.playClick();
         selectedBill = totalPayable;
+        Sound.speak(`Pago exacto, ${totalPayable === 1 ? '1 peso' : totalPayable + ' pesos'}`);
         if (inputPaid) inputPaid.value = totalPayable.toFixed(2);
         updateStep3Status();
       });
 
-      // Add Bill/Coin tap buttons
+      // Add Bill/Coin tap buttons con voz inmediata
       addButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           Sound.playClick();
           const addVal = parseFloat(btn.dataset.add);
           selectedBill = (selectedBill || 0) + addVal;
+          Sound.speakAmount(addVal);
           if (inputPaid) inputPaid.value = selectedBill.toFixed(2);
           updateStep3Status();
         });
@@ -377,7 +450,13 @@ export function renderPosView(container) {
         if (selectedBill !== null && selectedBill >= totalPayable) {
           Sound.playSuccess();
           currentStep = 4;
+          currentComboIndex = 0;
           render();
+          const chg = Math.round((selectedBill - totalPayable) * 100) / 100;
+          const combos = calculateAllChangeCombinations(chg);
+          setTimeout(() => {
+            Sound.speakChange(chg, combos[0] || []);
+          }, 350);
         } else {
           Sound.playError();
         }
@@ -388,21 +467,27 @@ export function renderPosView(container) {
       }
     }
 
-    // Step 4 Finish Sale & Voice Speech
+    // Step 4 Finish Sale, Voice Speech & Cycle Change Options
     if (currentStep === 4) {
       const btnFinish = container.querySelector('#btn-finish-sale');
       const btnSpeak = container.querySelector('#btn-speak-change');
+      const btnCycle = container.querySelector('#btn-cycle-change');
       const totalPayable = selectedProduct.price * quantity;
-      const change = selectedBill - totalPayable;
-      const breakdown = calculateChangeBreakdown(change);
-
-      // Reproducir voz automáticamente al llegar a la pantalla final
-      setTimeout(() => {
-        Sound.speakChange(change, breakdown);
-      }, 300);
+      const change = Math.round((selectedBill - totalPayable) * 100) / 100;
+      const combinations = calculateAllChangeCombinations(change);
+      const breakdown = combinations[currentComboIndex] || combinations[0] || [];
 
       btnSpeak?.addEventListener('click', () => {
+        Sound.playClick();
         Sound.speakChange(change, breakdown);
+      });
+
+      btnCycle?.addEventListener('click', () => {
+        Sound.playClick();
+        currentComboIndex = (currentComboIndex + 1) % combinations.length;
+        render();
+        const nextBreakdown = combinations[currentComboIndex] || combinations[0] || [];
+        Sound.speakChange(change, nextBreakdown);
       });
 
       btnFinish?.addEventListener('click', () => {
@@ -424,6 +509,7 @@ export function renderPosView(container) {
         selectedProduct = null;
         quantity = 1;
         selectedBill = null;
+        currentComboIndex = 0;
         render();
       });
     }

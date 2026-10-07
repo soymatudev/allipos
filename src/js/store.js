@@ -51,6 +51,12 @@ const INITIAL_PRODUCTS = [
     name: 'Refresco',
     price: 18.00,
     image: createDefaultSVG('🥤', '#e63946')
+  },
+  {
+    id: 'prod_7',
+    name: 'prueba',
+    price: 3.00,
+    image: ''
   }
 ];
 

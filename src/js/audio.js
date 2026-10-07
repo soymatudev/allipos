@@ -98,11 +98,32 @@ export const Sound = {
       window.speechSynthesis.cancel(); // Stop any ongoing speech
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'es-MX';
-      utterance.rate = 0.92; // Slightly slower rate for clear children comprehension
+      utterance.rate = 0.95; // Slightly slower rate for clear children comprehension
       utterance.pitch = 1.0;
+
+      // Prioritize Mexican Spanish voice if available in the browser
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const esMxVoice = voices.find(v => v.lang.toLowerCase() === 'es-mx') ||
+                          voices.find(v => v.lang.toLowerCase().startsWith('es'));
+        if (esMxVoice) {
+          utterance.voice = esMxVoice;
+        }
+      }
+
       window.speechSynthesis.speak(utterance);
     } catch (e) {
       console.warn('Error al reproducir síntesis de voz:', e);
+    }
+  },
+
+  // Dictado de denominación ingresada (ej. "5 pesos", "1 peso", "20 pesos")
+  speakAmount(amount) {
+    if (!amount && amount !== 0) return;
+    if (amount === 1) {
+      this.speak('1 peso');
+    } else {
+      this.speak(`${amount} pesos`);
     }
   },
 
@@ -116,7 +137,8 @@ export const Sound = {
     const parts = breakdown.map(item => {
       const denomText = item.type === 'billete' ? 'billete' : 'moneda';
       const pluralDenom = item.count > 1 ? (denomText === 'billete' ? 'billetes' : 'monedas') : denomText;
-      return `${item.count} ${pluralDenom} de ${item.value} pesos`;
+      const pesoUnit = item.value === 1 ? 'peso' : 'pesos';
+      return `${item.count} ${pluralDenom} de ${item.value} ${pesoUnit}`;
     });
 
     if (parts.length === 1) {
