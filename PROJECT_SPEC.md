@@ -1,4 +1,4 @@
-# 🏪 Punto de Venta Kermés Infantil (Duolingo Style POS)
+# 🏪 Allipos (Duolingo Style POS)
 
 ## 🎯 Objetivo del Proyecto
 Desarrollar una aplicación web móvil (PWA) de Punto de Venta (POS) hiper-simplificada y accesible para niños de secundaria con barreras de aprendizaje o dificultades en el cálculo matemático durante una kermés escolar. 
@@ -20,7 +20,7 @@ La app reduce la carga cognitiva al mínimo mediante una interfaz táctil inspir
 ## 📁 Estructura del Proyecto
 
 ```text
-kermes-pos/
+allipos/
 ├── public/
 │   ├── favicon.ico
 │   ├── icon-192.png

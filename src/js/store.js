@@ -1,9 +1,23 @@
-// State & LocalStorage Management for Kermés POS
+import prod1 from '../assets/inventory/prod_001.jpeg';
+import prod2 from '../assets/inventory/prod_002.jpeg';
+import prod3 from '../assets/inventory/prod_003.jpeg';
+import prod4 from '../assets/inventory/prod_004.jpeg';
+import prod5 from '../assets/inventory/prod_005.jpeg';
+import prod6 from '../assets/inventory/prod_006.jpeg';
+import prod7 from '../assets/inventory/prod_007.jpeg';
+import prod8 from '../assets/inventory/prod_008.jpeg';
+import prod9 from '../assets/inventory/prod_009.jpeg';
+import prod10 from '../assets/inventory/prod_010.jpeg';
+import prod11 from '../assets/inventory/prod_011.jpeg';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'kermes_products',
-  SALES: 'kermes_sales'
+  PRODUCTS: 'allipos_products',
+  SALES: 'allipos_sales',
+  CATALOG_VERSION: 'allipos_catalog_version'
 };
+
+// Incrementa esta versión en el código cada vez que modifiques INITIAL_PRODUCTS para auto-actualizar el LocalStorage
+const CURRENT_CATALOG_VERSION = '2026.10.06.allipos_v1';
 
 // SVG default images generator for placeholder snacks if base64 isn't provided
 function createDefaultSVG(emoji, bg = '#ffe3ad') {
@@ -14,64 +28,102 @@ function createDefaultSVG(emoji, bg = '#ffe3ad') {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-// Initial seed data for standard school kermés items
+// Initial seed data for Allipos items
 const INITIAL_PRODUCTS = [
   {
     id: 'prod_1',
-    name: 'Flan de Vainilla',
-    price: 15.00,
-    image: createDefaultSVG('🍮', '#ffd166')
+    name: 'Gelatinas',
+    price: 18.00,
+    image: prod1
   },
   {
     id: 'prod_2',
-    name: 'Taco de Guisado',
-    price: 25.00,
-    image: createDefaultSVG('🌮', '#ff9f1c')
+    name: 'Gelatina de Refresco',
+    price: 12.00,
+    image: prod2
   },
   {
     id: 'prod_3',
-    name: 'Agua Fresca',
-    price: 12.00,
-    image: createDefaultSVG('🥤', '#4ea8de')
+    name: 'Aguas Frescas',
+    price: 10.00,
+    image: prod3
   },
   {
     id: 'prod_4',
-    name: 'Paleta de Hielo',
-    price: 10.00,
-    image: createDefaultSVG('🍧', '#ff4d6d')
+    name: 'Gomitas Enchiladas',
+    price: 15.00,
+    image: prod4
   },
   {
     id: 'prod_5',
-    name: 'Hot Dog',
-    price: 20.00,
-    image: createDefaultSVG('🌭', '#ffb703')
+    name: 'Garapiñados',
+    price: 10.00,
+    image: prod5
   },
-  {
+  /*{
     id: 'prod_6',
-    name: 'Refresco',
-    price: 18.00,
-    image: createDefaultSVG('🥤', '#e63946')
-  },
+    name: 'Producto 6',
+    price: 20.00,
+    image: prod6
+  },*/
   {
     id: 'prod_7',
-    name: 'prueba',
-    price: 3.00,
-    image: ''
+    name: 'Chocoretas',
+    price: 10.00,
+    image: prod7
+  },
+  {
+    id: 'prod_8',
+    name: 'Manzanas',
+    price: 35.00,
+    image: prod8
+  },
+  {
+    id: 'prod_9',
+    name: 'Cakes Pops',
+    price: 25.00,
+    image: prod9
+  },
+  {
+    id: 'prod_10',
+    name: 'Carlota de Limon',
+    price: 25.00,
+    image: prod10
+  },
+  {
+    id: 'prod_11',
+    name: 'Flan',
+    price: 25.00,
+    image: prod11
   }
 ];
 
 export const Store = {
-  // Initialize storage if empty
+  // Initialize storage if empty or if catalog version changed
   init() {
-    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+    const existing = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    const savedVersion = localStorage.getItem(STORAGE_KEYS.CATALOG_VERSION);
+
+    // Si no hay productos, o si aún tenía SVGs antiguos, o si la versión del código cambió:
+    if (!existing || existing.includes('data:image/svg+xml') || savedVersion !== CURRENT_CATALOG_VERSION) {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
+      localStorage.setItem(STORAGE_KEYS.CATALOG_VERSION, CURRENT_CATALOG_VERSION);
     }
+
     if (!localStorage.getItem(STORAGE_KEYS.SALES)) {
-      localStorage.setItem(STORAGE_KEYS.SALES, JSON.stringify({
+      const oldSales = localStorage.getItem('kermes_sales');
+      localStorage.setItem(STORAGE_KEYS.SALES, oldSales || JSON.stringify({
         totalSales: 0,
         history: []
       }));
     }
+  },
+
+  // Restablecer catálogo forzadamente desde INITIAL_PRODUCTS
+  resetToDefaultProducts() {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
+    localStorage.setItem(STORAGE_KEYS.CATALOG_VERSION, CURRENT_CATALOG_VERSION);
+    return INITIAL_PRODUCTS;
   },
 
   // Products CRUD

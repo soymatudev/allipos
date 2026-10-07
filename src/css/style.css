@@ -742,3 +742,27 @@ main {
   color: var(--color-green-shadow);
   font-size: 1.15rem;
 }
+
+/* Footer Credit */
+.app-footer {
+  text-align: center;
+  padding: 10px 16px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-gray-light);
+  background-color: #fafbfc;
+  margin-top: auto;
+}
+
+.app-footer a {
+  color: var(--color-blue);
+  text-decoration: none;
+  font-weight: 800;
+  transition: opacity 0.2s;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}

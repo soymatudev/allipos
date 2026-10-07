@@ -1,4 +1,4 @@
-# 📘 Documentación de Cambios y Desarrollo - Kermés POS Infantil
+# 📘 Documentación de Cambios y Desarrollo - Allipos
 
 Este documento registra todas las funcionalidades creadas, refactorizaciones y ajustes de diseño/UX realizados tanto en el desarrollo colaborativo como en los ajustes finos de interfaz.
 
@@ -7,9 +7,10 @@ Este documento registra todas las funcionalidades creadas, refactorizaciones y a
 ## 🛠️ 1. Infraestructura y Arquitectura Base
 * **Tecnologías:** Vanilla JavaScript (ES Modules), HTML5, CSS3 Nivel Producción y Vite.
 * **PWA & Capacidades Offline:** 
-  * Inclusión de `public/manifest.json` configurado en modo `standalone` para instalación en pantalla de inicio.
-  * Implementación de Service Worker (`public/sw.js`) con estrategia de caché en segundo plano para garantizar funcionamiento **100% offline** en la kermés.
+  * Inclusión de `public/manifest.json` configurado en modo `standalone` para instalación en pantalla de inicio como **Allipos**.
+  * Implementación de Service Worker (`public/sw.js`) con caché `allipos-v1` para funcionamiento **100% offline**.
 * **Despliegue:** Configuración en `vercel.json` y `package.json` para despliegue continuo en Vercel.
+* **Pie de Página (Créditos):** Firma sutil en la parte inferior de la pantalla: `Allipos By Juan Maturana @soymatudev`.
 
 ---
 
@@ -25,7 +26,7 @@ Este documento registra todas las funcionalidades creadas, refactorizaciones y a
   * Amarillo (`#ffc800` / Sombra `#e5b200`) - Volver / Regresar.
   * Naranja (`#ff9600`) / Morado (`#ce82ff`) - Billetes y Monedas.
 * **Optimización Móvil:** 
-  * Ocultamiento del título en texto `KERMÉS POS` en el header para asegurar que las 3 pestañas principales (`🛒 Cobrar`, `📦 Productos`, `📊 Corte`) quepan perfectamente en cualquier smartphone.
+  * Header optimizado con el logo de la tienda para asegurar que las 3 pestañas principales (`🛒 Cobrar`, `📦 Productos`, `📊 Corte`) quepan perfectamente en cualquier smartphone.
 
 ---
 
@@ -66,6 +67,10 @@ Este documento registra todas las funcionalidades creadas, refactorizaciones y a
 ---
 
 ## 📦 4. Módulo de Administración de Productos (`src/js/ui/adminView.js` & `store.js`)
+* **Catálogo Base con Imágenes Reales de Inventario (`src/assets/inventory/`):**
+  * Se configuraron los productos por defecto vinculados a las imágenes reales de inventario (`prod_001.jpeg` a `prod_011.jpeg`).
+  * **Sistema de Versionado Automático (`CURRENT_CATALOG_VERSION`):** Cuando se modifican los productos en el código (`INITIAL_PRODUCTS`), la aplicación detecta la nueva versión y actualiza automáticamente el `LocalStorage` sin requerir acciones técnicas del usuario.
+  * **Botón Manual `🔄 Recargar Catálogo Base`:** En la pestaña de **📦 Productos**, se integró un botón táctil amarillo para forzar la sincronización manual inmediata con los productos definidos en el código.
 * **Edición de Productos Existentes (`Store.updateProduct`):**
   * Inclusión del botón **`✏️ Editar`** en cada producto del catálogo.
   * Modo de edición que carga automáticamente el Nombre, Precio y Foto previa para ser modificados.

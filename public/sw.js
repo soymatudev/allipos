@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kermes-pos-v1';
+const CACHE_NAME = 'allipos-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

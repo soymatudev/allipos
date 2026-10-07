@@ -19,7 +19,7 @@ export function renderAdminView(container) {
           ${editingProductId ? '✏️ Editar Producto' : '➕ Cargar Nuevo Producto'}
         </h2>
         <p style="color: var(--color-text-muted); font-weight: 700;">
-          ${editingProductId ? 'Modifica los datos del producto seleccionado.' : 'Agrega postres, bebidas o antojitos para la kermés.'}
+          ${editingProductId ? 'Modifica los datos del producto seleccionado.' : 'Agrega postres, bebidas o antojitos para Allipos.'}
         </p>
       </div>
 
@@ -57,7 +57,12 @@ export function renderAdminView(container) {
       </form>
 
       <div>
-        <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 12px;">📋 Catálogo Actual (${products.length})</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <h2 style="font-size: 1.3rem; font-weight: 900; margin: 0;">📋 Catálogo Actual (${products.length})</h2>
+          <button type="button" class="btn-3d btn-yellow" id="btn-reset-defaults" style="padding: 6px 12px; font-size: 0.85rem; width: auto;" title="Recargar los productos predeterminados definidos en el código">
+            🔄 Recargar Catálogo Base
+          </button>
+        </div>
         <div class="admin-list">
           ${products.length === 0 ? `
             <p style="color: var(--color-text-muted); font-weight: 700;">No hay productos guardados.</p>
@@ -92,6 +97,18 @@ export function renderAdminView(container) {
     const imageBox = container.querySelector('#image-box');
     const fileInput = container.querySelector('#prod-image-file');
     const btnCancelEdit = container.querySelector('#btn-cancel-edit');
+    const btnResetDefaults = container.querySelector('#btn-reset-defaults');
+
+    btnResetDefaults?.addEventListener('click', () => {
+      Sound.playClick();
+      if (confirm('¿Deseas restablecer el catálogo con los productos definidos en el código? Se actualizarán las fotos, nombres y precios del sistema.')) {
+        Store.resetToDefaultProducts();
+        Sound.playSuccess();
+        editingProductId = null;
+        imageBase64 = null;
+        render();
+      }
+    });
 
     imageBox?.addEventListener('click', () => {
       Sound.playClick();

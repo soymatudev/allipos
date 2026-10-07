@@ -1,7 +1,7 @@
 {
-  "name": "POS Kermés Infantil",
-  "short_name": "Kermés POS",
-  "description": "Punto de Venta sencillo para kermés escolar",
+  "name": "Allipos",
+  "short_name": "Allipos",
+  "description": "Allipos - Punto de Venta súper sencillo e intuitivo",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f7f9fa",
