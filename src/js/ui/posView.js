@@ -1,10 +1,10 @@
 import { Store } from '../store.js';
 import { Sound } from '../audio.js';
-import img5 from '../../assets/diner5.jpg';
-import img10 from '../../assets/diner10.jpg';
-import img20 from '../../assets/diner20.jpg';
-import img50 from '../../assets/diner50.jpg';
-import img100 from '../../assets/diner100.jpg';
+import img5 from '../../assets/diner/diner5.jpg';
+import img10 from '../../assets/diner/diner10.jpg';
+import img20 from '../../assets/diner/diner20.jpg';
+import img50 from '../../assets/diner/diner50.jpg';
+import img100 from '../../assets/diner/diner100.jpg';
 
 export function renderPosView(container) {
   let currentStep = 1; // 1: Select Product, 2: Select Quantity, 3: Select Payment, 4: Success/Change
