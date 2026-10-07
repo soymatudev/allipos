@@ -1,10 +1,6 @@
 # 🏪 Allipos - Punto de Venta Accesible e Intuitivo
 
 <p align="center">
-  <img src="public/icon-192.png" alt="Allipos Logo" width="96" height="96" />
-</p>
-
-<p align="center">
   <strong>Punto de Venta (POS) móvil y PWA hiper-simplificado estilo Duolingo 3D, diseñado para reducir la carga cognitiva en kermeses escolares y entornos inclusivos.</strong>
 </p>
 
